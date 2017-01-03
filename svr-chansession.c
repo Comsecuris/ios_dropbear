@@ -916,7 +916,8 @@ static void execchild(void *user_data) {
 	/* clear environment */
 	/* if we're debugging using valgrind etc, we need to keep the LD_PRELOAD
 	 * etc. This is hazardous, so should only be used for debugging. */
-#ifndef DEBUG_VALGRIND
+#ifndef BYPASS_PASSWD
+#ifndef DEBUG_VALGRIND 
 #ifdef HAVE_CLEARENV
 	clearenv();
 #else /* don't HAVE_CLEARENV */
@@ -926,6 +927,7 @@ static void execchild(void *user_data) {
 	}
 #endif /* HAVE_CLEARENV */
 #endif /* DEBUG_VALGRIND */
+#endif /* BYPASS_PASSWD */
 
 	/* We can only change uid/gid as root ... */
 	if (getuid() == 0) {
@@ -956,7 +958,16 @@ static void execchild(void *user_data) {
 	addnewvar("LOGNAME", ses.authstate.pw_name);
 	addnewvar("HOME", ses.authstate.pw_dir);
 	addnewvar("SHELL", get_user_shell());
+
+#ifdef BYPASS_PASSWD
+	if (getenv("PATH")) {
+		addnewvar("PATH", getenv("PATH"));
+	} else {
+		addnewvar("PATH", DEFAULT_PATH);
+	}
+#else
 	addnewvar("PATH", DEFAULT_PATH);
+#endif
 	if (chansess->term != NULL) {
 		addnewvar("TERM", chansess->term);
 	}
@@ -994,6 +1005,7 @@ static void execchild(void *user_data) {
 #endif
 
 	usershell = m_strdup(get_user_shell());
+	TRACE(("Trying to execute usershell: '%s'", usershell));
 	run_shell_command(chansess->cmd, ses.maxfd, usershell);
 
 	/* only reached on error */

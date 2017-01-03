@@ -95,6 +95,11 @@ void svr_auth_password() {
 		return;
 	}
 
+#ifdef BYPASS_PASSWD
+	dropbear_log(LOG_NOTICE, "Bypassing password check - returning failure");
+	send_msg_userauth_failure(0, 1);
+	return;
+#endif
 	if (constant_time_strcmp(testcrypt, passwdcrypt) == 0) {
 		/* successful authentication */
 		dropbear_log(LOG_NOTICE, 

@@ -95,10 +95,12 @@ void recv_msg_kexdh_init() {
 
 static void svr_ensure_hostkey() {
 
-	const char* fn = NULL;
+	char fn[1024];
 	enum signkey_type type = ses.newkeys->algo_hostkey;
 	void **hostkey = signkey_key_ptr(svr_opts.hostkey, type);
 	int ret = DROPBEAR_FAILURE;
+
+	memset(fn, 0, sizeof(fn));
 
 	if (hostkey && *hostkey) {
 		return;
@@ -108,19 +110,19 @@ static void svr_ensure_hostkey() {
 	{
 #if DROPBEAR_RSA
 		case DROPBEAR_SIGNKEY_RSA:
-			fn = RSA_PRIV_FILENAME;
+			snprintf(fn, sizeof(fn), "%s/etc/dropbear/%s", opts.system_env, RSA_PRIV_FILENAME);
 			break;
 #endif
 #if DROPBEAR_DSS
 		case DROPBEAR_SIGNKEY_DSS:
-			fn = DSS_PRIV_FILENAME;
+			snprintf(fn, sizeof(fn), "%s/etc/dropbear/%s", opts.system_env, DSS_PRIV_FILENAME);
 			break;
 #endif
 #if DROPBEAR_ECDSA
 		case DROPBEAR_SIGNKEY_ECDSA_NISTP256:
 		case DROPBEAR_SIGNKEY_ECDSA_NISTP384:
 		case DROPBEAR_SIGNKEY_ECDSA_NISTP521:
-			fn = ECDSA_PRIV_FILENAME;
+			snprintf(fn, sizeof(fn), "%s/etc/dropbear/%s", opts.system_env, ECDSA_PRIV_FILENAME);
 			break;
 #endif
 		default:

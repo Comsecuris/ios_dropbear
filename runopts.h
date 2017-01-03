@@ -53,6 +53,8 @@ typedef struct runopts {
 	} compress_mode;
 #endif
 
+	char *system_env;
+
 #if DROPBEAR_USER_ALGO_LIST
 	char *cipher_list;
 	char *mac_list;

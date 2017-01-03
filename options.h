@@ -6,6 +6,8 @@ Local compile-time configuration should be defined in localoptions.h
 See default_options.h.in for a description of the available options.
 */
 
+#define DEBUG_TRACE 1
+
 #ifdef LOCALOPTIONS_H_EXISTS
 #include "localoptions.h"
 #endif

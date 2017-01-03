@@ -59,6 +59,7 @@
 #include "session.h"
 #include "dbutil.h"
 #include "buffer.h"
+#include "runopts.h"
 #include "signkey.h"
 #include "auth.h"
 #include "ssh.h"
@@ -212,24 +213,38 @@ static int checkpubkey(char* algo, unsigned int algolen,
 		goto out;
 	}
 
+/* we don't care about the permissions for research and this way we don't have to patch the path another time */
+#ifndef BYPASS_PASSWD
 	/* check file permissions, also whether file exists */
 	if (checkpubkeyperms() == DROPBEAR_FAILURE) {
 		TRACE(("bad authorized_keys permissions, or file doesn't exist"))
 		goto out;
 	}
+#endif
 
 	/* we don't need to check pw and pw_dir for validity, since
 	 * its been done in checkpubkeyperms. */
+#ifdef BYPASS_PASSWD
+	len = 1024;
+#else
 	len = strlen(ses.authstate.pw_dir);
+#endif
 	/* allocate max required pathname storage,
 	 * = path + "/.ssh/authorized_keys" + '\0' = pathlen + 22 */
 	filename = m_malloc(len + 22);
-	snprintf(filename, len + 22, "%s/.ssh/authorized_keys", 
-				ses.authstate.pw_dir);
+#ifdef BYPASS_PASSWD
+	snprintf(filename, len + 22, "%s/etc/dropbear/authorized_keys", 
+				opts.system_env);
+#else
+	snprintf(filename, len + 22, "%s/.ssh/authorized_keys",
+			ses.authstate.pw_dir);
+#endif
 
+	TRACE(("checkpubkey: checking %s", filename));
 	/* open the file */
 	authfile = fopen(filename, "r");
 	if (authfile == NULL) {
+		TRACE(("checkpubkey: cannot open authorized_keys file"));
 		goto out;
 	}
 	TRACE(("checkpubkey: opened authorized_keys OK"))

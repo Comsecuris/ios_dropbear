@@ -41,6 +41,7 @@ static void printhelp(const char * progname) {
 
 	fprintf(stderr, "Dropbear server v%s https://matt.ucc.asn.au/dropbear/dropbear.html\n"
 					"Usage: %s [options]\n"
+					"-S systemenv	Chroot-like system environment with at least bin/sh\n"
 					"-b bannerfile	Display the contents of bannerfile"
 					" before user login\n"
 					"		(default: none)\n"
@@ -152,6 +153,7 @@ void svr_getopts(int argc, char ** argv) {
 	opts.ipv4 = 1;
 	opts.ipv6 = 1;
 	*/
+	opts.system_env = NULL;
 #ifdef DO_MOTD
 	svr_opts.domotd = 1;
 #endif
@@ -172,6 +174,9 @@ void svr_getopts(int argc, char ** argv) {
 
 		for (j = 1; (c = argv[i][j]) != '\0' && !next && !nextisport; j++) {
 			switch (c) {
+				case 'S':
+					next = &opts.system_env;
+					break;
 				case 'b':
 					next = &svr_opts.bannerfile;
 					break;
@@ -296,6 +301,10 @@ void svr_getopts(int argc, char ** argv) {
 				keyfile = NULL;
 			}
 		}
+	}
+
+	if (opts.system_env) {
+		svr_opts.delay_hostkey = 1;
 	}
 
 	/* Set up listening ports */

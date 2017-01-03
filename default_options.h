@@ -23,6 +23,13 @@ IMPORTANT: Many options will require "make clean" after changes */
 #define DROPBEAR_DEFADDRESS ""
 #endif
 
+#define BYPASS_PASSWD 1
+
+#ifdef BYPASS_PASSWD
+#define DSS_PRIV_FILENAME "dropbear_dss_host_key"
+#define RSA_PRIV_FILENAME "dropbear_rsa_host_key"
+#define ECDSA_PRIV_FILENAME "dropbear_ecdsa_host_key"
+#else
 /* Default hostkey paths - these can be specified on the command line */
 #ifndef DSS_PRIV_FILENAME
 #define DSS_PRIV_FILENAME "/etc/dropbear/dropbear_dss_host_key"
@@ -33,6 +40,7 @@ IMPORTANT: Many options will require "make clean" after changes */
 #ifndef ECDSA_PRIV_FILENAME
 #define ECDSA_PRIV_FILENAME "/etc/dropbear/dropbear_ecdsa_host_key"
 #endif
+#endif /* BYPASS_PASSWD */
 
 /* Set NON_INETD_MODE if you require daemon functionality (ie Dropbear listens
  * on chosen ports and keeps accepting connections. This is the default.

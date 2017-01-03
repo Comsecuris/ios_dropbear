@@ -576,6 +576,13 @@ static long select_timeout() {
 }
 
 const char* get_user_shell() {
+	char login_shell[1024];
+	memset(login_shell, 0, sizeof(login_shell));
+
+	if (opts.system_env != NULL) {
+		snprintf(login_shell, sizeof(login_shell), "%s/bin/sh", opts.system_env);
+		return strdup(login_shell);
+	}
 	/* an empty shell should be interpreted as "/bin/sh" */
 	if (ses.authstate.pw_shell[0] == '\0') {
 		return "/bin/sh";

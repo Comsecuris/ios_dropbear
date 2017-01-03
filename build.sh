@@ -9,6 +9,8 @@
 # 3) adjust ARCH if needed
 # 4) run build.sh and deploy jailbreak
 # 5) run dropbear -R -E -m -F -S PATHTOSHELLBINARY
+# Attention: This version of dropbear enables root logins with any
+# password. If you'd like to change this, change svr-authpasswd.c
 
 JTOOL="$HOME/dev/jtool/jtool"
 ARCH="arm64"
@@ -20,6 +22,9 @@ CFLAGS="-arch $ARCH --sysroot=$SYSROOT"
 LDFLAGS="-arch $ARCH --sysroot=$SYSROOT"
 
 export CC CFLAGS LDFLAGS
+
+autoreconf -i
+
 make distclean
 
 ./configure --host=arm-apple-darwin
@@ -30,6 +35,8 @@ if [ ! $? -eq 0 ]; then
     exit 1
 fi
 
+# we need to sign the binaries
+# see saurik.com/id/8
 for i in dropbear dbclient dropbearconvert dropbearkey; do
     $JTOOL --sign $i
     mv out.bin $i
