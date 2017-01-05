@@ -32,6 +32,8 @@ dropbear -S /var/containers/Bundle/Application/53860657-F635-4693-90F3-61A6FA550
 ```
 
 Please note that you have to adjust the -S option here to match the iosbinpack within the bundle path of your mach_portal app.
+In case of mach_portal, the simplest way to do that is ```dropbear -m -E -S "$(echo $PATH | sed -e 's,/bin.*,,g')"```.
+
 Moreover, /bin/sh is a copy of zsh, which expects modules to be present in /usr/local/bin. Unless you want to ignore the load error, replace bin/sh in iosbinpack with bash.
 
 ## FAQ
