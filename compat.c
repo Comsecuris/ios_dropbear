@@ -152,6 +152,43 @@ strlcat(char *dst, const char *src, size_t siz)
 }
 #endif /* HAVE_STRLCAT */
 
+/* From NetBSD - daemonise a process */
+
+/* we removed the setsid call here.
+   the reason for this is that with mach_portal, all childs of the exploit
+   will receive fake bootstrap code as part of unsandboxer. however, this
+   does not work when using setsid, which implicitely is called by daemon.
+   since there is no controlling terminal, we don't need to ignore SIGHUP here.
+*/
+
+int daemon_no_setsid(int nochdir, int noclose) {
+
+	int fd;
+
+	/* (void)signal(SIGHUP, SIG_IGN); */
+
+	switch (fork()) {
+		case -1:
+			return (-1);
+		case 0:
+			break;
+		default:
+			_exit(0);
+	}
+
+	if (!nochdir)
+		(void)chdir("/");
+
+	if (!noclose && (fd = open(_PATH_DEVNULL, O_RDWR, 0)) != -1) {
+		(void)dup2(fd, STDIN_FILENO);
+		(void)dup2(fd, STDOUT_FILENO);
+		(void)dup2(fd, STDERR_FILENO);
+		if (fd > STDERR_FILENO)
+			(void)close(fd);
+	}
+	return 0;
+}
+
 #ifndef HAVE_DAEMON
 /* From NetBSD - daemonise a process */
 

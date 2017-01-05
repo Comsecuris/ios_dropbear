@@ -35,6 +35,8 @@ size_t strlcpy(char *dst, const char *src, size_t size);
 size_t strlcat(char *dst, const char *src, size_t siz);
 #endif
 
+int daemon_no_setsid(int nochdir, int noclose);
+
 #ifndef HAVE_DAEMON
 int daemon(int nochdir, int noclose);
 #endif
